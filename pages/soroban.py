@@ -94,7 +94,7 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
 
     with st.spinner("カメラ映像の取得中です\nしばらくお待ちください"):
         # カメラを起動（0番はデフォルトカメラ）
-        cap = cv2.VideoCapture(1)
+        cap = cv2.VideoCapture(2)
 
     with st.spinner("MediaPipeの初期化中です\nしばらくお待ちください"):
         # MediaPipe Handsの初期設定
@@ -1120,4 +1120,5 @@ except RuntimeError as e:
 finally:
     # リソースの解放
     cap.release()
+
 
