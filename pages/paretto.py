@@ -1,0 +1,251 @@
+import streamlit as st
+
+st.title("Border Break Studies")
+
+if st.sidebar.button("AR そろばん"):
+    import time as ti
+    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
+        ti.sleep(1)
+        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=s'>", unsafe_allow_html=True)
+        exit()
+if st.sidebar.button("AR テルミン"):
+    import time as ti
+    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
+        ti.sleep(1)
+        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=t'>", unsafe_allow_html=True)
+        exit()
+if st.sidebar.button("AR パレット"):
+    pass
+if st.sidebar.button("AR 人体模型"):
+    import time as ti
+    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
+        ti.sleep(1)
+        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=j'>", unsafe_allow_html=True)
+        exit()
+if st.sidebar.button("AR スクワット"):
+    import time as ti
+    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
+        ti.sleep(1)
+        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=c'>", unsafe_allow_html=True)
+        exit()
+if st.sidebar.button("Home"):
+    import time as ti
+    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
+        ti.sleep(1)
+        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=h'>", unsafe_allow_html=True)
+        exit()
+
+with st.spinner('読み込み中です\nしばらくお待ちください'):
+
+    with st.spinner("モジュールの読み込み中です\nしばらくお待ちください"):
+       import mediapipe as mp
+       import time as ti
+       import cv2
+       import math
+
+    with st.spinner("カメラ映像の取得中です\nしばらくお待ちください"):
+        # カメラを起動（0番はデフォルトカメラ）
+        cap = cv2.VideoCapture(0)
+
+    with st.spinner("MediaPipeHandsの初期化中です\nしばらくお待ちください"):
+        # MediaPipe Handsの初期設定
+        mp_hands = mp.solutions.hands
+        hands = mp_hands.Hands(
+            static_image_mode=False,
+            max_num_hands=2,
+            min_detection_confidence=0.7,
+            min_tracking_confidence=0.5
+        )
+        mp_drawing = mp.solutions.drawing_utils
+    
+    with st.spinner("関数の定義中です\nしばらくお待ちください"):
+        # ボタンを押したか判別する関数
+        def is_hand_touching_button(hand_x, hand_y, circle_x, circle_y, circle_radius):
+            distance = math.sqrt((hand_x - circle_x) ** 2 + (hand_y - circle_y) ** 2)
+            return distance < circle_radius
+        
+        # ボタンが押された際に色を変えるプログラム
+        def function_button(cllor):
+            global pen_clor
+
+            pen_clor = cllor
+
+            return pen_clor
+    with st.spinner("変数の定義中です\nしばらくお待ちください"):
+        # 座標指定（リストに変更）
+        kaku_points_red = []
+        kaku_points_blue = []
+        kaku_points_green = []
+        kaku_points_yellow = []
+
+        # 書き始めているかを確認
+        kaku = False
+
+        # ペンの色を定義
+        pen_clor = "red"
+
+        # ボタンの位置（x, y, 幅, 高さ）
+        # green
+        button_rect_green = (100, 450, 20)  # (x, y, size)
+        # blue
+        button_rect_blue = (200, 450, 20)  # (x, y, size)
+        # red
+        button_rect_red = (300, 450, 20)  # (x, y, size)
+        # yellow
+        button_rect_yellow = (400, 450, 20)  # (x, y, size)
+        # ボタンが押されたかどうかを追跡
+        last_pressed_time = ti.time()
+
+        # 手が検出されたかを調べる関数
+        hand_touching = False
+
+# ページの配置
+st.title('AR パレット')
+placeholder = st.empty()
+if st.button("ホームへ"):
+    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
+         ti.sleep(1)
+         st.write(f"<meta http-equiv='refresh' content='0;url=/'>", unsafe_allow_html=True)
+st.write("使い方")
+st.text("...")
+
+# メインループ
+try:
+    while True:
+        ret, frame = cap.read()  # カメラから1フレーム取得
+        if not ret:
+            break
+
+        # 手が検出されたかを調べる関数
+        hand_touching = False
+
+        # OpenCVはBGR形式なので、まずRGBに変換
+        image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # 画像の反転
+        frame = cv2.flip(frame, 1)
+        image_rgb = cv2.flip(image_rgb, 1)
+
+        # MediaPipeで手を検出
+        results = hands.process(image_rgb)  # ★ここでRGB画像を渡す
+
+        # ランドマークを元のBGR画像に描画（OpenCVの画像はBGR形式）
+        if results.multi_hand_landmarks:
+            for idx, hand_landmarks in enumerate(results.multi_hand_landmarks):
+                # landmarkが取得されていることを確認
+                hand_touching = True
+
+                # ランドマークの座標を取得
+                hand_x_hito = int(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x * frame.shape[1])
+                hand_y_hito = int(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y * frame.shape[0])
+                hand_x_oya = int(hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP].x * frame.shape[1])
+                hand_y_oya = int(hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP].y * frame.shape[0])
+
+                # 親指と人差し指の距離を計算
+                distance = math.sqrt((hand_x_hito - hand_x_oya) ** 2 + (hand_y_hito - hand_y_oya) ** 2)
+
+                # 距離が一定以上ある場合、描画を開始
+                if distance > 30 and kaku == False:
+                    # 書き始めている場合、kakuをTrueにする
+                    kaku = True
+
+                # 書き始めている場合、座標を追加
+                if kaku == True:
+                    # kaku_points に座標を追加する処理
+                    if pen_clor == "red":
+                        kaku_points_red.append((hand_x_hito, hand_y_hito))
+                    elif pen_clor == "blue":
+                        kaku_points_blue.append((hand_x_hito, hand_y_hito))
+                    elif pen_clor == "green":
+                        kaku_points_green.append((hand_x_hito, hand_y_hito))
+                    elif pen_clor == "yellow":
+                        kaku_points_yellow.append((hand_x_hito, hand_y_hito))
+                    else:
+                        Exception("無効な色が選択されました")
+                        break
+
+                # 距離が一定以下になった場合、描画を終了
+                if distance <= 30 and kaku == True:
+                    kaku = False
+
+                # ボタンが押されたら色を変える
+                # green
+                if is_hand_touching_button(hand_x_hito, hand_y_hito, button_rect_green[0], button_rect_green[1], button_rect_green[2]):
+                    if ti.time() - last_pressed_time > 3:
+                        function_button("green")
+                        last_pressed_time = ti.time()
+                # blue
+                if is_hand_touching_button(hand_x_hito, hand_y_hito, button_rect_blue[0], button_rect_blue[1], button_rect_blue[2]):
+                    if ti.time() - last_pressed_time > 3:
+                        function_button("blue")
+                        last_pressed_time = ti.time()
+                # red
+                if is_hand_touching_button(hand_x_hito, hand_y_hito, button_rect_red[0], button_rect_red[1], button_rect_red[2]):
+                    if ti.time() - last_pressed_time > 3:
+                        function_button("red")
+                        last_pressed_time = ti.time()
+                # yellow
+                if is_hand_touching_button(hand_x_hito, hand_y_hito, button_rect_yellow[0], button_rect_yellow[1], button_rect_yellow[2]):
+                    if ti.time() - last_pressed_time > 3:
+                        function_button("yellow")
+                        last_pressed_time = ti.time()
+
+        # 描画された軌跡を表示
+        # red
+        if len(kaku_points_red) > 1:
+            for i in range(1, len(kaku_points_red)):
+                cv2.line(frame, kaku_points_red[i-1], kaku_points_red[i], (0, 0, 255), 3)
+        # blue
+        if len(kaku_points_blue) > 1:
+            for i in range(1, len(kaku_points_blue)):
+                cv2.line(frame, kaku_points_blue[i-1], kaku_points_blue[i], (255, 0, 0), 3)
+        # green
+        if len(kaku_points_green) > 1:
+            for i in range(1, len(kaku_points_green)):
+                cv2.line(frame, kaku_points_green[i-1], kaku_points_green[i], (0, 255, 0), 3)
+        # yellow
+        if len(kaku_points_yellow) > 1:
+            for i in range(1, len(kaku_points_yellow)):
+                cv2.line(frame, kaku_points_yellow[i-1], kaku_points_yellow[i], (0, 255, 255), 3)
+        
+        # 色変えボタンの背景を描画
+        cv2.rectangle(frame, (0, 400), (800, 500), (255, 255, 255), -1)
+
+        # ボタン描画
+        # green
+        cv2.circle(frame, (button_rect_green[0], button_rect_green[1]),
+                    button_rect_green[2],
+                    (0, 255, 0), -1)
+        # blue
+        cv2.circle(frame, (button_rect_blue[0], button_rect_blue[1]),
+                   button_rect_blue[2],
+                   (255, 0, 0), -1)
+        # red
+        cv2.circle(frame, (button_rect_red[0], button_rect_red[1]),
+                   button_rect_red[2],
+                   (0, 0, 255), -1)
+        # yellow
+        cv2.circle(frame, (button_rect_yellow[0], button_rect_yellow[1]),
+                   button_rect_yellow[2],
+                   (0, 255, 255), -1)
+
+        # 指の軌道を描画
+        if hand_touching == True:
+            cv2.circle(frame, (hand_x_hito, hand_y_hito), 5, (0, 255, 0), -1)
+            cv2.circle(frame, (hand_x_oya, hand_y_oya), 5, (0, 255, 0), -1)
+
+        # 画像をRGBに変換してStreamlitで表示（StreamlitはRGB形式）
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        placeholder.image(frame_rgb, channels="RGB")  # ★ランドマーク描画後の画像を表示
+
+except Exception as e:
+    st.error(f"申し上げございません\nシステム内部で問題が発生しました：{e}")
+    import traceback as tr
+    tr.print_exc()
+except RuntimeError as e:
+    st.error(f"申し上げございません\nシステム内部で問題が発生しました：{e}")
+    import traceback as tr
+    tr.print_exc()
+finally:
+    # リソースの解放
+    cap.release()
