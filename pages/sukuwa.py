@@ -52,7 +52,7 @@ if out == "f":
     if st.button("もう一度する"):
         with st.spinner('リダイレクト中です\nしばらくお待ちください'):
             ti.sleep(1)
-            st.write(f"<meta http-equiv='refresh' content='0;url=.sukuwa'>", unsafe_allow_html=True)
+            st.write(f"<meta http-equiv='refresh' content='0;url=sukuwa'>", unsafe_allow_html=True)
     if st.button("ホームに戻る"):
         with st.spinner('リダイレクト中です\nしばらくお待ちください'):
             ti.sleep(1)
@@ -65,4 +65,5 @@ if write == True:
     if st.button("スクワットへ"):
         with st.spinner('リダイレクト中です\nしばらくお待ちください'):
             ti.sleep(1)
-            st.write(f"<meta http-equiv='refresh' content='0;url=.sukuwatto?number={mokuhyo}'>", unsafe_allow_html=True)
+
+            st.write(f"<meta http-equiv='refresh' content='0;url=sukuwatto?number={mokuhyo}'>", unsafe_allow_html=True)
