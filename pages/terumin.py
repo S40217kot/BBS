@@ -1,39 +1,7 @@
 import streamlit as st
 
 st.title("Border Break Studies")
-
-if st.sidebar.button("AR そろばん"):
-    import time as ti
-    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-        ti.sleep(1)
-        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=s'>", unsafe_allow_html=True)
-        exit()
-if st.sidebar.button("AR テルミン"):
-    pass
-if st.sidebar.button("AR パレット"):
-    import time as ti
-    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-        ti.sleep(1)
-        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=p'>", unsafe_allow_html=True)
-        exit()
-if st.sidebar.button("AR 人体模型"):
-    import time as ti
-    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-        ti.sleep(1)
-        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=j'>", unsafe_allow_html=True)
-        exit()
-if st.sidebar.button("AR スクワット"):
-    import time as ti
-    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-        ti.sleep(1)
-        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=c'>", unsafe_allow_html=True)
-        exit()
-if st.sidebar.button("Home"):
-    import time as ti
-    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-        ti.sleep(1)
-        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=h'>", unsafe_allow_html=True)
-        exit()
+st.title('AR テルミン')
 
 with st.spinner('読み込み中です\nしばらくお待ちください'):
 
@@ -43,11 +11,10 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
        import cv2
        import sounddevice as sd
        import numpy as np
-
-    with st.spinner("カメラ映像の取得中です\nしばらくお待ちください"):
-        # カメラを起動（0番はデフォルトカメラ）
-        cap = cv2.VideoCapture(0)
-
+       from streamlit_webrtc import webrtc_streamer, RTCConfiguration, VideoProcessorBase
+       import mediapipe as mp
+       import cv2
+       import av
     with st.spinner("MediapipeHandsの初期化中です\nしばらくお待ちください"):
         # MediaPipe Handsの初期設定
         mp_hands = mp.solutions.hands
@@ -70,31 +37,26 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
         def reverse_sign(n):
             return -n
 
-# ページの配置
-st.title('AR テルミン')
-placeholder = st.empty()
-if st.button("ホームへ"):
-    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-         ti.sleep(1)
-         st.write(f"<meta http-equiv='refresh' content='0;url=/'>", unsafe_allow_html=True)
-st.markdown("<b>使い方<b>", unsafe_allow_html=True)
-st.write("上に行けば行くほど音が小くなり")
-st.write("下に行けば行くほど音が大きくなります。")
-st.write("右に行けば行くほど音が高くなり")
-st.write("左に行けば行くほど音が低くくなります。")
-st.write("上記の方法で音を制御します。")
+RTC_CONFIG = RTCConfiguration(
+    {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+)
 
-# メインループ
-try:
-    while True:
-        ret, frame = cap.read()  # カメラから1フレーム取得
-        if not ret:
-            break
+mp_hands = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils
 
-        # OpenCVはBGR形式なので、まずRGBに変換
+class HandProcessor(VideoProcessorBase):
+    def __init__(self):
+        self.hands = mp_hands.Hands(
+            static_image_mode=False,
+            max_num_hands=1,
+            min_detection_confidence=0.7,
+            min_tracking_confidence=0.5
+        )
+
+    def recv(self, frame):
+        frame = frame.to_ndarray(format="bgr24")
         image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        # 画像を水平方向に反転
         frame = cv2.flip(frame, 1)
         image_rgb = cv2.flip(image_rgb, 1)
 
@@ -129,18 +91,19 @@ try:
         cv2.rectangle(frame, (570, 430), (600, 440), (180, 180, 180), cv2.FILLED, cv2.LINE_AA)
         cv2.rectangle(frame, (600, 410), (600, 440), (180, 180, 180), cv2.FILLED, cv2.LINE_AA)
 
-        # 画像をRGBに変換してStreamlitで表示（StreamlitはRGB形式）
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        placeholder.image(frame_rgb, channels="RGB")  # ★ランドマーク描画後の画像を表示
 
-except Exception as e:
-    st.error(f"申し上げございません\nシステム内部で問題が発生しました：{e}")
-    import traceback as tr
-    tr.print_exc()
-except RuntimeError as e:
-    st.error(f"申し上げございません\nシステム内部で問題が発生しました：{e}")
-    import traceback as tr
-    tr.print_exc()
-finally:
-    # リソースの解放
-    cap.release()
+        return av.VideoFrame.from_ndarray(frame, format="bgr24")
+
+ctx = webrtc_streamer(
+    key="camera",
+    rtc_configuration=RTC_CONFIG,
+    media_stream_constraints={"video": True, "audio": False},
+    video_processor_factory=HandProcessor
+)
+
+st.markdown("<b>使い方<b>", unsafe_allow_html=True)
+st.write("上に行けば行くほど音が小くなり")
+st.write("下に行けば行くほど音が大きくなります。")
+st.write("右に行けば行くほど音が高くなり")
+st.write("左に行けば行くほど音が低くくなります。")
+st.write("上記の方法で音を制御します。")
