@@ -48,7 +48,7 @@ else:
     ti.sleep(2)
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
         ti.sleep(1)
-        st.write(f"<meta http-equiv='refresh' content='0;url=.sukuwa'>", unsafe_allow_html=True)
+        st.switch_page("pages/sukuwa.py")
         exit()
     exit()
 
@@ -202,4 +202,5 @@ finally:
     # リソースの解放
 
     cap.release()
+
 
