@@ -1,5 +1,7 @@
 import streamlit as st
 
+st.set_page_config(page_title="Home")
+
 # titleの描画
 st.title("Border Break Studies")
 
@@ -112,4 +114,5 @@ if run == "run":
     except Exception as e:
         st.error(f"申し上げございません\nシステム内部で問題が発生しました：{e}")
     except RuntimeError as e:
+
         st.error(f"申し上げございません\nシステム内部で問題が発生しました：{e}")
