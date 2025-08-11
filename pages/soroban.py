@@ -9,36 +9,31 @@ if st.sidebar.button("AR テルミン"):
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
         import time as ti
         ti.sleep(1)
-        js = f"window.location.href = 'https://borderbreakstudies.streamlit.app/terumin';"
-        st.markdown(f"<script>{js}</script>", unsafe_allow_html=True)
+        st.switch_page("pages/terumin.py")
         exit()
 if st.sidebar.button("AR パレット"):
     import time as ti
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
         ti.sleep(1)
-        js = f"window.location.href = 'https://borderbreakstudies.streamlit.app/paretto';"
-        st.markdown(f"<script>{js}</script>", unsafe_allow_html=True)
+        st.switch_page("pages/paretto.py")
         exit()
 if st.sidebar.button("AR 人体模型"):
     import time as ti
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
         ti.sleep(1)
-        js = f"window.location.href = 'https://borderbreakstudies.streamlit.app/jintai';"
-        st.markdown(f"<script>{js}</script>", unsafe_allow_html=True)
+        st.switch_page("pages/jintai.py")
         exit()
 if st.sidebar.button("AR スクワット"):
     import time as ti
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
         ti.sleep(1)
-        js = f"window.location.href = 'https://borderbreakstudies.streamlit.app/sukuwa';"
-        st.markdown(f"<script>{js}</script>", unsafe_allow_html=True)
+        st.switch_page("pages/sukuwa.py")
         exit()
 if st.sidebar.button("Home"):
     import time as ti
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
         ti.sleep(1)
-        js = f"window.location.href = 'https://borderbreakstudies.streamlit.app/';"
-        st.markdown(f"<script>{js}</script>", unsafe_allow_html=True)
+        st.switch_page("/main.py")
         exit()
 
 with st.spinner('読み込み中です\nしばらくお待ちください'):
@@ -1110,4 +1105,5 @@ st.write("人差し指で球を下げます")
 st.write("一番右が一の位で左に行くにつれ二の位三の位・・・となっていきます。")
 st.write("一番上のたまが五でその下四つが一です")
 st.write("上記の方法で球を上げ下げし計算します。")
+
 
