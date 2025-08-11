@@ -53,7 +53,7 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
     with st.spinner("画像の読み込み中です\nしばらくお待ちください"):
         # 透過PNG画像の読み込み
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        target_image_path_tama = os.path.join(current_dir, 'streamlit', 'Images', 'tama1.png')
+        target_image_path_tama = os.path.join(current_dir, '..', 'Images', 'tama1.png')
         target_image_tama = cv2.imread(target_image_path_tama, cv2.IMREAD_UNCHANGED)
         target_size_tama = 40  # 画像の直径
         target_image_tama = cv2.resize(target_image_tama, (target_size_tama, target_size_tama))
@@ -1110,3 +1110,4 @@ st.write("人差し指で球を下げます")
 st.write("一番右が一の位で左に行くにつれ二の位三の位・・・となっていきます。")
 st.write("一番上のたまが五でその下四つが一です")
 st.write("上記の方法で球を上げ下げし計算します。")
+
