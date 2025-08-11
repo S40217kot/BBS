@@ -37,8 +37,7 @@ if st.sidebar.button("Home"):
 
 # ページの移動がある場合
 # urlを取得
-url = st.query_params
-out = url.get('number', [None])
+out = st.session_state.get("mokuhyo", "None")
 # ページに飛ばす
 if out != None:
     mokuhyo = out
@@ -216,4 +215,5 @@ except RuntimeError as e:
     st.error(f"申し上げございません\nシステム内部で問題が発生しました：{e}")
 finally:
     # リソースの解放
+
     cap.release()
