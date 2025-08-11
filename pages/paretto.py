@@ -232,7 +232,7 @@ ctx = webrtc_streamer(
 
 if st.button("ホームへ"):
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-         ti.sleep(1)
-         st.write(f"<meta http-equiv='refresh' content='0;url=/'>", unsafe_allow_html=True)
+         st.switch_page("main.py")
 st.write("使い方")
 st.text("...")
+
