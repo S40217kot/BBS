@@ -52,8 +52,6 @@ else:
         exit()
     exit()
 
-st.info(mokuhyo)
-
 with st.spinner('読み込み中です\nしばらくお待ちください'):
 
     with st.spinner("モジュールの読み込み中です\nしばらくお待ちください"):
@@ -204,6 +202,7 @@ finally:
     # リソースの解放
 
     cap.release()
+
 
 
 
