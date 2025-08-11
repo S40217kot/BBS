@@ -3,37 +3,22 @@ import streamlit as st
 st.title("Border Break Studies")
 
 if st.sidebar.button("AR そろばん"):
-    import time as ti
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-        ti.sleep(1)
-        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=s'>", unsafe_allow_html=True)
-        exit()
+        st.switch_page("pages/soroban.py")
 if st.sidebar.button("AR テルミン"):
-    import time as ti
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-        ti.sleep(1)
-        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=t'>", unsafe_allow_html=True)
-        exit()
+        st.switch_page("pages/terumin.py")
 if st.sidebar.button("AR パレット"):
-    import time as ti
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-        ti.sleep(1)
-        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=p'>", unsafe_allow_html=True)
-        exit()
+        st.switch_page("pages/paretto.py")
 if st.sidebar.button("AR 人体模型"):
-    import time as ti
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-        ti.sleep(1)
-        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=j'>", unsafe_allow_html=True)
-        exit()
+        st.switch_page("pages/jintai.py")
 if st.sidebar.button("AR スクワット"):
     pass
 if st.sidebar.button("Home"):
-    import time as ti
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-        ti.sleep(1)
-        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=h'>", unsafe_allow_html=True)
-        exit()
+        st.switch_page("main.py")
 
 # ページの移動がある場合
 # urlを取得
@@ -217,3 +202,4 @@ finally:
     # リソースの解放
 
     cap.release()
+
