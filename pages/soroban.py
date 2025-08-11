@@ -3,6 +3,64 @@ import streamlit as st
 st.title("Border Break Studies")
 st.title('AR そろばん')
 
+if st.sidebar.button("AR そろばん"):
+    pass
+if st.sidebar.button("AR テルミン"):
+    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
+        import time as ti
+        ti.sleep(1)
+        st.markdown(
+            """
+            <meta http-equiv="refresh" content="0; url='https://borderbreakstudies.streamlit.app/terumin'" />
+            """,
+            unsafe_allow_html=True
+        )
+        exit()
+if st.sidebar.button("AR パレット"):
+    import time as ti
+    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
+        ti.sleep(1)
+        st.markdown(
+            """
+            <meta http-equiv="refresh" content="0; url='https://borderbreakstudies.streamlit.app/paretto'" />
+            """,
+            unsafe_allow_html=True
+        )
+        exit()
+if st.sidebar.button("AR 人体模型"):
+    import time as ti
+    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
+        ti.sleep(1)
+        st.markdown(
+            """
+            <meta http-equiv="refresh" content="0; url='https://borderbreakstudies.streamlit.app/jintai'" />
+            """,
+            unsafe_allow_html=True
+        )
+        exit()
+if st.sidebar.button("AR スクワット"):
+    import time as ti
+    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
+        ti.sleep(1)
+        st.markdown(
+            """
+            <meta http-equiv="refresh" content="0; url='https://borderbreakstudies.streamlit.app/sukuwa'" />
+            """,
+            unsafe_allow_html=True
+        )
+        exit()
+if st.sidebar.button("Home"):
+    import time as ti
+    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
+        ti.sleep(1)
+        st.markdown(
+            """
+            <meta http-equiv="refresh" content="0; url='https://borderbreakstudies.streamlit.app/'" />
+            """,
+            unsafe_allow_html=True
+        )
+        exit()
+
 with st.spinner('読み込み中です\nしばらくお待ちください'):
     with st.spinner("モジュールのロード中です\nしばらくお待ちください"):
         from streamlit_webrtc import webrtc_streamer, RTCConfiguration, VideoProcessorBase
@@ -15,7 +73,7 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
     with st.spinner("画像の読み込み中です\nしばらくお待ちください"):
         # 透過PNG画像の読み込み
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        target_image_path_tama = os.path.join(current_dir, '..', 'Images', 'tama1.png')
+        target_image_path_tama = os.path.join(current_dir, 'streamlit', 'Images', 'tama1.png')
         target_image_tama = cv2.imread(target_image_path_tama, cv2.IMREAD_UNCHANGED)
         target_size_tama = 40  # 画像の直径
         target_image_tama = cv2.resize(target_image_tama, (target_size_tama, target_size_tama))
@@ -1072,4 +1130,3 @@ st.write("人差し指で球を下げます")
 st.write("一番右が一の位で左に行くにつれ二の位三の位・・・となっていきます。")
 st.write("一番上のたまが五でその下四つが一です")
 st.write("上記の方法で球を上げ下げし計算します。")
-
