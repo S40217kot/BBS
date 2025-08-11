@@ -83,13 +83,6 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
 
 # ページの配置
 st.title('AR パレット')
-placeholder = st.empty()
-if st.button("ホームへ"):
-    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-         ti.sleep(1)
-         st.write(f"<meta http-equiv='refresh' content='0;url=/'>", unsafe_allow_html=True)
-st.write("使い方")
-st.text("...")
 
 RTC_CONFIG = RTCConfiguration(
     {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
@@ -236,12 +229,10 @@ ctx = webrtc_streamer(
     media_stream_constraints={"video": True, "audio": False},
     video_processor_factory=HandProcessor
 )
-except Exception as e:
-    st.error(f"申し上げございません\nシステム内部で問題が発生しました：{e}")
-    import traceback as tr
-    tr.print_exc()
-except RuntimeError as e:
-    st.error(f"申し上げございません\nシステム内部で問題が発生しました：{e}")
-    import traceback as tr
-    tr.print_exc()
 
+if st.button("ホームへ"):
+    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
+         ti.sleep(1)
+         st.write(f"<meta http-equiv='refresh' content='0;url=/'>", unsafe_allow_html=True)
+st.write("使い方")
+st.text("...")
