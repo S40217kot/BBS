@@ -1,5 +1,6 @@
 import streamlit as st
 
+st.set_page_config(page_title="そろばん")
 st.title("Border Break Studies")
 st.title('AR そろばん')
 
@@ -1105,6 +1106,7 @@ st.write("人差し指で球を下げます")
 st.write("一番右が一の位で左に行くにつれ二の位三の位・・・となっていきます。")
 st.write("一番上のたまが五でその下四つが一です")
 st.write("上記の方法で球を上げ下げし計算します。")
+
 
 
 
