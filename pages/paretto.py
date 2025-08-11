@@ -24,13 +24,10 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
 
     with st.spinner("モジュールの読み込み中です\nしばらくお待ちください"):
        import mediapipe as mp
+       from streamlit_webrtc import webrtc_streamer, RTCConfiguration, VideoProcessorBase
        import time as ti
        import cv2
        import math
-
-    with st.spinner("カメラ映像の取得中です\nしばらくお待ちください"):
-        # カメラを起動（0番はデフォルトカメラ）
-        cap = cv2.VideoCapture(0)
 
     with st.spinner("MediaPipeHandsの初期化中です\nしばらくお待ちください"):
         # MediaPipe Handsの初期設定
@@ -94,12 +91,24 @@ if st.button("ホームへ"):
 st.write("使い方")
 st.text("...")
 
-# メインループ
-try:
-    while True:
-        ret, frame = cap.read()  # カメラから1フレーム取得
-        if not ret:
-            break
+RTC_CONFIG = RTCConfiguration(
+    {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+)
+
+mp_hands = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils
+
+class HandProcessor(VideoProcessorBase):
+    def __init__(self):
+        self.hands = mp_hands.Hands(
+            static_image_mode=False,
+            max_num_hands=1,
+            min_detection_confidence=0.7,
+            min_tracking_confidence=0.5
+        )
+
+    def recv(self, frame):
+        frame = frame.to_ndarray(format="bgr24")
 
         # 手が検出されたかを調べる関数
         hand_touching = False
@@ -219,10 +228,14 @@ try:
             cv2.circle(frame, (hand_x_hito, hand_y_hito), 5, (0, 255, 0), -1)
             cv2.circle(frame, (hand_x_oya, hand_y_oya), 5, (0, 255, 0), -1)
 
-        # 画像をRGBに変換してStreamlitで表示（StreamlitはRGB形式）
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        placeholder.image(frame_rgb, channels="RGB")  # ★ランドマーク描画後の画像を表示
+        return av.VideoFrame.from_ndarray(frame, format="bgr24")
 
+ctx = webrtc_streamer(
+    key="camera",
+    rtc_configuration=RTC_CONFIG,
+    media_stream_constraints={"video": True, "audio": False},
+    video_processor_factory=HandProcessor
+)
 except Exception as e:
     st.error(f"申し上げございません\nシステム内部で問題が発生しました：{e}")
     import traceback as tr
@@ -231,7 +244,4 @@ except RuntimeError as e:
     st.error(f"申し上げございません\nシステム内部で問題が発生しました：{e}")
     import traceback as tr
     tr.print_exc()
-finally:
-    # リソースの解放
 
-    cap.release()
