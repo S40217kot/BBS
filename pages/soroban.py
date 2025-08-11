@@ -1,56 +1,25 @@
 import streamlit as st
 
 st.title("Border Break Studies")
-
-if st.sidebar.button("AR そろばん"):
-    pass
-if st.sidebar.button("AR テルミン"):
-    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-        import time as ti
-        ti.sleep(1)
-        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=t'>", unsafe_allow_html=True)
-        exit()
-if st.sidebar.button("AR パレット"):
-    import time as ti
-    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-        ti.sleep(1)
-        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=p'>", unsafe_allow_html=True)
-        exit()
-if st.sidebar.button("AR 人体模型"):
-    import time as ti
-    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-        ti.sleep(1)
-        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=j'>", unsafe_allow_html=True)
-        exit()
-if st.sidebar.button("AR スクワット"):
-    import time as ti
-    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-        ti.sleep(1)
-        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=c'>", unsafe_allow_html=True)
-        exit()
-if st.sidebar.button("Home"):
-    import time as ti
-    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-        ti.sleep(1)
-        st.write(f"<meta http-equiv='refresh' content='0;url=/?page=h'>", unsafe_allow_html=True)
-        exit()
+st.title('AR そろばん')
 
 with st.spinner('読み込み中です\nしばらくお待ちください'):
     with st.spinner("モジュールのロード中です\nしばらくお待ちください"):
-        import cv2
+        from streamlit_webrtc import webrtc_streamer, RTCConfiguration, VideoProcessorBase
         import mediapipe as mp
-        import time as ti
+        import cv2
+        import av
         import os
         import math
 
     with st.spinner("画像の読み込み中です\nしばらくお待ちください"):
         # 透過PNG画像の読み込み
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        target_image_path_tama = os.path.join(current_dir, '..', 'Images', 'tama1.png')
+        target_image_path_tama = os.path.join(current_dir, 'streamlit', 'Images', 'tama1.png')
         target_image_tama = cv2.imread(target_image_path_tama, cv2.IMREAD_UNCHANGED)
         target_size_tama = 40  # 画像の直径
         target_image_tama = cv2.resize(target_image_tama, (target_size_tama, target_size_tama))
-
+    
     with st.spinner("変数の定義中です\nしばらくお待ちください"):
         # 何列目はすべて右から数えます
         # 何行目はすべて上から数えます
@@ -91,11 +60,6 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
         keta_5 = 0
         # 6桁目
         keta_6 = 0
-
-    with st.spinner("カメラ映像の取得中です\nしばらくお待ちください"):
-        # カメラを起動（0番はデフォルトカメラ）
-        cap = cv2.VideoCapture(0)
-
     with st.spinner("MediaPipeの初期化中です\nしばらくお待ちください"):
         # MediaPipe Handsの初期設定
         mp_hands = mp.solutions.hands
@@ -370,53 +334,43 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
                         if gazou_y_tama_6_5 == 295:
                             gazou_y_tama_6_5 = 363
                             keta_6 -= 1
-    
-# ページの配置
-st.title('AR そろばん')
-placeholder = st.empty()
-if st.button("ホームへ"):
-    with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-         ti.sleep(1)
-         st.write(f"<meta http-equiv='refresh' content='0;url=/?page=h'>", unsafe_allow_html=True)
-st.markdown("<b>使い方<b>", unsafe_allow_html=True)
-st.write("親指で球を上げます")
-st.write("人差し指で球を下げます")
-st.write("一番右が一の位で左に行くにつれ二の位三の位・・・となっていきます。")
-st.write("一番上のたまが五でその下四つが一です")
-st.write("上記の方法で球を上げ下げし計算します。")
 
-# メインループ
-try:
-    while True:
-        ret, frame = cap.read()  # カメラから1フレーム取得
-        if not ret:
-            break
+RTC_CONFIG = RTCConfiguration(
+    {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+)
 
-        # OpenCVはRGB形式なので、RGBに変換
+mp_hands = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils
+
+class HandProcessor(VideoProcessorBase):
+    def __init__(self):
+        self.hands = mp_hands.Hands(
+            static_image_mode=False,
+            max_num_hands=1,
+            min_detection_confidence=0.7,
+            min_tracking_confidence=0.5
+        )
+
+    def recv(self, frame):
+        frame = frame.to_ndarray(format="bgr24")
         image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        # 画像を水平方向に反転
         frame = cv2.flip(frame, 1)
         image_rgb = cv2.flip(image_rgb, 1)
 
-        # MediaPipeで手を検出
-        results = hands.process(image_rgb)  # ★ここでRGB画像を渡す
+        results = self.hands.process(image_rgb)
 
-        # ランドマークを元のBGR画像に描画（OpenCVの画像はBGR形式）
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
                 mp_drawing.draw_landmarks(
                     frame,
                     hand_landmarks,
-                    mp_hands.HAND_CONNECTIONS 
+                    mp_hands.HAND_CONNECTIONS
                 )
-
                 hand_x = int(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x * frame.shape[1])
                 hand_y = int(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y * frame.shape[0])
-                
-                # 現在の指先位置を表示
                 cv2.circle(frame, (hand_x, hand_y), 5, (0, 255, 0), -1)
-    
+
                 if is_hand_touching_gazou(hand_x, hand_y, gazou_x_tama_1_1, gazou_y_tama_1_1, 20):
                     mobe_tama('d', 1, 1)
                 if is_hand_touching_gazou(hand_x, hand_y, gazou_x_tama_1_1, gazou_y_tama_1_2, 20):
@@ -513,7 +467,6 @@ try:
                     mobe_tama('d', 6, 3)
                     mobe_tama('d', 6, 4)
                     mobe_tama('d', 6, 5)
-        
         # 何列目はすべて右から数えます
         # 何行目はすべて上から数えます
         # 帽を描画
@@ -647,7 +600,6 @@ try:
                     mobe_tama('u', 6, 3)
                     mobe_tama('u', 6, 4)
                     mobe_tama('u', 6, 5)
-
         # 何列目はすべて右から数えます
         # 何行目はすべて上から数えます
         # 画像を配置
@@ -1105,23 +1057,18 @@ try:
         cv2.circle(frame, (589, 160), 5, (0, 0, 0), -1)
         cv2.putText(frame, f"{keta_1}{keta_2}{keta_3}{keta_4}{keta_5}{keta_6}", (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
-        # 画像をRGBに変換してStreamlitで表示（StreamlitはRGB形式）
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        placeholder.image(frame_rgb, channels="RGB")
+        return av.VideoFrame.from_ndarray(frame, format="bgr24")
 
-except Exception as e:
-    st.error(f"申し上げございません\nシステム内部で問題が発生しました：{e}")
-    import traceback as tr
-    tr.print_exc()
-except RuntimeError as e:
-    st.error(f"申し上げございません\nシステム内部で問題が発生しました：{e}")
-    import traceback as tr
-    tr.print_exc()
-finally:
-    # リソースの解放
-    cap.release()
+ctx = webrtc_streamer(
+    key="camera",
+    rtc_configuration=RTC_CONFIG,
+    media_stream_constraints={"video": True, "audio": False},
+    video_processor_factory=HandProcessor
+)
 
-
-
-
-
+st.markdown("<b>使い方<b>", unsafe_allow_html=True)
+st.write("親指で球を上げます")
+st.write("人差し指で球を下げます")
+st.write("一番右が一の位で左に行くにつれ二の位三の位・・・となっていきます。")
+st.write("一番上のたまが五でその下四つが一です")
+st.write("上記の方法で球を上げ下げし計算します。")
