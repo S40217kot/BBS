@@ -1,8 +1,8 @@
 import streamlit as st
 
+st.set_page_config(page_title="パレット")
 st.title("Border Break Studies")
 
-st.set_page_config(page_title="パレット")
 
 if st.sidebar.button("AR そろばん"):
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
