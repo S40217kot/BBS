@@ -29,6 +29,7 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
        from streamlit_webrtc import webrtc_streamer, RTCConfiguration, VideoProcessorBase
        import time as ti
        import cv2
+       import av
        import math
 
     with st.spinner("MediaPipeHandsの初期化中です\nしばらくお待ちください"):
@@ -237,5 +238,6 @@ if st.button("ホームへ"):
          st.switch_page("main.py")
 st.write("使い方")
 st.text("...")
+
 
 
