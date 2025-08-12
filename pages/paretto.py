@@ -119,7 +119,12 @@ class HandProcessor(VideoProcessorBase):
 
         # ランドマークを元のBGR画像に描画（OpenCVの画像はBGR形式）
         if results.multi_hand_landmarks:
-            for idx, hand_landmarks in enumerate(results.multi_hand_landmarks):
+            for hand_landmarks in results.multi_hand_landmarks:
+                mp_drawing.draw_landmarks(
+                    frame,
+                    hand_landmarks,
+                    mp_hands.HAND_CONNECTIONS
+                )
                 # landmarkが取得されていることを確認
                 hand_touching = True
 
@@ -236,5 +241,4 @@ if st.button("ホームへ"):
          st.switch_page("main.py")
 st.write("使い方")
 st.text("...")
-
 
