@@ -105,19 +105,17 @@ class HandProcessor(VideoProcessorBase):
 
     def recv(self, frame):
         frame = frame.to_ndarray(format="bgr24")
+        image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         # 手が検出されたかを調べる関数
         hand_touching = False
-
-        # OpenCVはBGR形式なので、まずRGBに変換
-        image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         # 画像の反転
         frame = cv2.flip(frame, 1)
         image_rgb = cv2.flip(image_rgb, 1)
 
         # MediaPipeで手を検出
-        results = hands.process(image_rgb)  # ★ここでRGB画像を渡す
+        results = self.hands.process(image_rgb)
 
         # ランドマークを元のBGR画像に描画（OpenCVの画像はBGR形式）
         if results.multi_hand_landmarks:
@@ -238,6 +236,5 @@ if st.button("ホームへ"):
          st.switch_page("main.py")
 st.write("使い方")
 st.text("...")
-
 
 
