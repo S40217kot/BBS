@@ -2,6 +2,8 @@ import streamlit as st
 
 st.title("Border Break Studies")
 
+st.set_page_config(page_title="パレット")
+
 if st.sidebar.button("AR そろばん"):
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
         st.switch_page("pages/soroban.py")
@@ -235,4 +237,5 @@ if st.button("ホームへ"):
          st.switch_page("main.py")
 st.write("使い方")
 st.text("...")
+
 
