@@ -96,6 +96,8 @@ mp_drawing = mp.solutions.drawing_utils
 
 class HandProcessor(VideoProcessorBase):
     def __init__(self):
+        global kaku_points_red, kaku_points_blue, kaku_points_green, kaku_points_yellow
+        global kaku, pen_clor, last_pressed_time
         self.hands = mp_hands.Hands(
             static_image_mode=False,
             max_num_hands=1,
@@ -153,9 +155,6 @@ class HandProcessor(VideoProcessorBase):
                         kaku_points_green.append((hand_x_hito, hand_y_hito))
                     elif pen_clor == "yellow":
                         kaku_points_yellow.append((hand_x_hito, hand_y_hito))
-                    else:
-                        Exception("無効な色が選択されました")
-                        break
 
                 # 距離が一定以下になった場合、描画を終了
                 if distance <= 30 and kaku == True:
