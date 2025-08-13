@@ -28,7 +28,7 @@ if st.sidebar.button("AR スクワット"):
     import time as ti
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
         ti.sleep(1)
-        st.switch_page("pages/sukuwa.py")
+        st.switch_page("pages/sukutest.py")
         exit()
 if st.sidebar.button("Home"):
     import time as ti
@@ -141,4 +141,5 @@ st.write("下に行けば行くほど音が大きくなります。")
 st.write("右に行けば行くほど音が高くなり")
 st.write("左に行けば行くほど音が低くくなります。")
 st.write("上記の方法で音を制御します。")
+
 
