@@ -16,7 +16,7 @@ if st.sidebar.button("AR 人体模型"):
         st.switch_page("pages/jintai.py")
 if st.sidebar.button("AR スクワット"):
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
-        st.switch_page("pages/sukuwa.py")
+        st.switch_page("pages/sukutest.py")
 if st.sidebar.button("Home"):
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
         st.switch_page("main.py")
@@ -198,3 +198,4 @@ if st.button("ホームへ"):
 
 st.write("使い方")
 st.text("...")
+
