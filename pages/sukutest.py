@@ -66,7 +66,7 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
             return angle
 
         def putText_japanese(img, text, point, size, color):
-            font = ImageFont.truetype('fonts/BIZ-UDGothicR.ttc', size)
+            font = ImageFont.truetype('BIZ-UDGothicR.ttc', size)
 
             #imgをndarrayからPILに変換
             img_pil = Image.fromarray(img)
@@ -173,4 +173,5 @@ if st.button("ホームへ"):
         st.switch_page("main.py")
         exit()
 st.write("使い方")
+
 st.text("...")
