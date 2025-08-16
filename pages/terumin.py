@@ -59,33 +59,34 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
         )
         mp_drawing = mp.solutions.drawing_utils
 
-        components.html("""
-        <script>
-        let ctx = new (window.AudioContext || window.webkitAudioContext)();
-        let osc = ctx.createOscillator();
-        let gainNode = ctx.createGain();
-        osc.type = 'sine';
-        osc.connect(gainNode);
-        gainNode.connect(ctx.destination);
-        gainNode.gain.value = 0;  // 最初は音量0
-        osc.start();
-
-        function setTone(freq, vol){
-            ctx.resume();
-            osc.frequency.setValueAtTime(freq, ctx.currentTime);
-            gainNode.gain.setValueAtTime(vol, ctx.currentTime);
-        }
-
-        function stopTone(){
-            gainNode.gain.setValueAtTime(0, ctx.currentTime);
-        }
-        </script>
-        """, height=0, width=0)
+        if st.button("音が出るようにする"):
+            components.html("""
+            <script>
+            let ctx = new (window.AudioContext || window.webkitAudioContext)();
+            let osc = ctx.createOscillator();
+            let gainNode = ctx.createGain();
+            osc.type = 'sine';
+            osc.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            gainNode.gain.value = 0;  // 最初は音量0
+            osc.start();
+    
+            function setTone(freq, vol){
+                ctx.resume();
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gainNode.gain.setValueAtTime(vol, ctx.currentTime);
+            }
+    
+            function stopTone(){
+                gainNode.gain.setValueAtTime(0, ctx.currentTime);
+            }
+            </script>
+            """, height=0, width=0)
     with st.spinner("関数の定義中です\nしばらくお待ちください"):
         # 音を鳴らす
         def generate_tone(freq, vol):
             components.html(f"<script>setTone({freq},{vol});</script>", height=0, width=0)
-        
+
         def stop_tone():
             components.html("<script>stopTone();</script>", height=0, width=0)
 
