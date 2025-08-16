@@ -70,13 +70,13 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
             gainNode.connect(ctx.destination);
             gainNode.gain.value = 0;  // 最初は音量0
             osc.start();
-    
+
             function setTone(freq, vol){
                 ctx.resume();
                 osc.frequency.setValueAtTime(freq, ctx.currentTime);
                 gainNode.gain.setValueAtTime(vol, ctx.currentTime);
             }
-    
+
             function stopTone(){
                 gainNode.gain.setValueAtTime(0, ctx.currentTime);
             }
@@ -101,6 +101,8 @@ RTC_CONFIG = RTCConfiguration(
 
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
+
+components.html(f"<script>setTone({100},{1});</script>", height=0, width=0)
 
 class HandProcessor(VideoProcessorBase):
     def __init__(self):
