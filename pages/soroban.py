@@ -6,11 +6,11 @@ st.title('AR そろばん')
 
 if st.sidebar.button("AR そろばん"):
     pass
-if st.sidebar.button("AR テルミン"):
+if st.sidebar.button("AR 地図"):
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
         import time as ti
         ti.sleep(1)
-        st.switch_page("pages/terumin.py")
+        st.switch_page("pages/tizu.py")
         exit()
 if st.sidebar.button("AR パレット"):
     import time as ti
@@ -1106,6 +1106,7 @@ st.write("人差し指で球を下げます")
 st.write("一番右が一の位で左に行くにつれ二の位三の位・・・となっていきます。")
 st.write("一番上のたまが五でその下四つが一です")
 st.write("上記の方法で球を上げ下げし計算します。")
+
 
 
 
