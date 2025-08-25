@@ -129,6 +129,24 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
         def is_hand_touching_gazou(hand_x, hand_y, gazou_x, gazou_y, gazou_radius):
             distance = math.sqrt((hand_x - gazou_x) ** 2 + (hand_y - gazou_y) ** 2)
             return distance < gazou_radius
+        
+        def putText_japanese(img, text, point, size, color):
+            try:
+                font = ImageFont.truetype('BIZ-UDGothicR.ttc', size)
+            except OSError:
+                font = ImageFont.load_default()
+
+            #imgをndarrayからPILに変換
+            img_pil = Image.fromarray(img)
+
+            #drawインスタンス生成
+            draw = ImageDraw.Draw(img_pil)
+
+            #テキスト描画
+            draw.text(point, text, fill=color, font=font)
+
+            #PILからndarrayに変換して返す
+            return np.array(img_pil)
 
     with st.spinner("MediaPipeの初期化中です\nしばらくお待ちください"):
         # MediaPipe Handsの初期設定
@@ -140,20 +158,6 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
             min_tracking_confidence=0.5
         )
         mp_drawing = mp.solutions.drawing_utils
-    def putText_japanese(img, text, point, size, color):
-        font = ImageFont.truetype('BIZ-UDGothicR.ttc', size)
-
-        #imgをndarrayからPILに変換
-        img_pil = Image.fromarray(img)
-
-        #drawインスタンス生成
-        draw = ImageDraw.Draw(img_pil)
-
-        #テキスト描画
-        draw.text(point, text, fill=color, font=font)
-
-        #PILからndarrayに変換して返す
-        return np.array(img_pil)
 
 RTC_CONFIG = RTCConfiguration(
     {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
@@ -172,286 +176,290 @@ class HandProcessor(VideoProcessorBase):
         )
     
     def recv(self, frame):
-        frame = frame.to_ndarray(format="bgr24")
-        image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        try:
+            frame = frame.to_ndarray(format="bgr24")
+            image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        frame = cv2.flip(frame, 1)
-        image_rgb = cv2.flip(image_rgb, 1)
+            frame = cv2.flip(frame, 1)
+            image_rgb = cv2.flip(image_rgb, 1)
 
-        results = self.hands.process(image_rgb)
+            results = self.hands.process(image_rgb)
 
-        if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
-                mp_drawing.draw_landmarks(
-                    frame,
-                    hand_landmarks,
-                    mp_hands.HAND_CONNECTIONS
-                )
-                hand_x = int(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x * frame.shape[1])
-                hand_y = int(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y * frame.shape[0])
-                cv2.circle(frame, (hand_x, hand_y), 5, (0, 255, 0), -1)
-                
-                if is_hand_touching_gazou(hand_x, hand_y, 500, 100, 50):
-                    cv2.rectangle(frame, (0, 0), (350, 40), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
-                    frame = putText_japanese(frame, f"北海道地方:メロンが有名です", (0, 10), 25, (0, 0, 0))
-                    if target_image_meron is not None:
-                        h, w = target_image_meron.shape[:2]
-                        x_offset = max(0, 550 - w // 2)
-                        y_offset = max(0, 400 - h // 2)
+            if results.multi_hand_landmarks:
+                for hand_landmarks in results.multi_hand_landmarks:
+                    mp_drawing.draw_landmarks(
+                        frame,
+                        hand_landmarks,
+                        mp_hands.HAND_CONNECTIONS
+                    )
+                    hand_x = int(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x * frame.shape[1])
+                    hand_y = int(hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y * frame.shape[0])
+                    cv2.circle(frame, (hand_x, hand_y), 5, (0, 255, 0), -1)
 
-                        # 貼り付け可能な領域を制限
-                        h_end = min(frame.shape[0], y_offset + h)
-                        w_end = min(frame.shape[1], x_offset + w)
+                    if is_hand_touching_gazou(hand_x, hand_y, 500, 100, 50):
+                        cv2.rectangle(frame, (0, 0), (350, 40), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
+                        frame = putText_japanese(frame, f"北海道地方:メロンが有名です", (0, 10), 25, (0, 0, 0))
+                        if target_image_meron is not None:
+                            h, w = target_image_meron.shape[:2]
+                            x_offset = max(0, 550 - w // 2)
+                            y_offset = max(0, 400 - h // 2)
 
-                        roi = frame[y_offset:h_end, x_offset:w_end]
+                            # 貼り付け可能な領域を制限
+                            h_end = min(frame.shape[0], y_offset + h)
+                            w_end = min(frame.shape[1], x_offset + w)
 
-                        overlay_resized = target_image_meron[0:(h_end-y_offset), 0:(w_end-x_offset)]
+                            roi = frame[y_offset:h_end, x_offset:w_end]
 
-                        try:
-                            if overlay_resized.shape[2] == 4:
-                                alpha = overlay_resized[:, :, 3] / 255.0
-                                for c in range(3):
-                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                            else:
-                                roi[:, :, :] = overlay_resized
-                        except Exception as e:
-                            st.error(e)
-                if is_hand_touching_gazou(hand_x, hand_y, 400, 200, 50):
-                    cv2.rectangle(frame, (0, 0), (350, 40), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
-                    frame = putText_japanese(frame, f"東北地方:青森県のねぶた祭が", (0, 10), 25, (0, 0, 0))
-                    cv2.rectangle(frame, (0, 40), (350, 80), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
-                    frame = putText_japanese(frame, f"有名です", (0, 50), 25, (0, 0, 0))
-                    if target_image_maturi is not None:
-                        h, w = target_image_maturi.shape[:2]
-                        x_offset = max(0, 500 - w // 2)
-                        y_offset = max(0, 350 - h // 2)
+                            overlay_resized = target_image_meron[0:(h_end-y_offset), 0:(w_end-x_offset)]
 
-                        # 貼り付け可能な領域を制限
-                        h_end = min(frame.shape[0], y_offset + h)
-                        w_end = min(frame.shape[1], x_offset + w)
+                            try:
+                                if overlay_resized.shape[2] == 4:
+                                    alpha = overlay_resized[:, :, 3] / 255.0
+                                    for c in range(3):
+                                        roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                                else:
+                                    roi[:, :, :] = overlay_resized
+                            except Exception as e:
+                                st.error(e)
+                    if is_hand_touching_gazou(hand_x, hand_y, 400, 200, 50):
+                        cv2.rectangle(frame, (0, 0), (350, 40), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
+                        frame = putText_japanese(frame, f"東北地方:青森県のねぶた祭が", (0, 10), 25, (0, 0, 0))
+                        cv2.rectangle(frame, (0, 40), (350, 80), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
+                        frame = putText_japanese(frame, f"有名です", (0, 50), 25, (0, 0, 0))
+                        if target_image_maturi is not None:
+                            h, w = target_image_maturi.shape[:2]
+                            x_offset = max(0, 500 - w // 2)
+                            y_offset = max(0, 350 - h // 2)
 
-                        roi = frame[y_offset:h_end, x_offset:w_end]
+                            # 貼り付け可能な領域を制限
+                            h_end = min(frame.shape[0], y_offset + h)
+                            w_end = min(frame.shape[1], x_offset + w)
 
-                        overlay_resized = target_image_maturi[0:(h_end-y_offset), 0:(w_end-x_offset)]
+                            roi = frame[y_offset:h_end, x_offset:w_end]
 
-                        try:
-                            if overlay_resized.shape[2] == 4:
-                                alpha = overlay_resized[:, :, 3] / 255.0
-                                for c in range(3):
-                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                            else:
-                                roi[:, :, :] = overlay_resized
-                        except Exception as e:
-                            st.error(e)
-                if is_hand_touching_gazou(hand_x, hand_y, 400, 300, 50):
-                    cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
-                    frame = putText_japanese(frame, f"関東地方:東京の江戸前寿司が", (0, 10), 25, (0, 0, 0))
-                    cv2.rectangle(frame, (0, 40), (350, 80), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
-                    frame = putText_japanese(frame, f"有名です", (0, 50), 25, (0, 0, 0))
-                    if target_image_edozusi is not None:
-                        h, w = target_image_edozusi.shape[:2]
-                        x_offset = max(0, 550 - w // 2)
-                        y_offset = max(0, 350 - h // 2)
+                            overlay_resized = target_image_maturi[0:(h_end-y_offset), 0:(w_end-x_offset)]
 
-                        # 貼り付け可能な領域を制限
-                        h_end = min(frame.shape[0], y_offset + h)
-                        w_end = min(frame.shape[1], x_offset + w)
+                            try:
+                                if overlay_resized.shape[2] == 4:
+                                    alpha = overlay_resized[:, :, 3] / 255.0
+                                    for c in range(3):
+                                        roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                                else:
+                                    roi[:, :, :] = overlay_resized
+                            except Exception as e:
+                                st.error(e)
+                    if is_hand_touching_gazou(hand_x, hand_y, 400, 300, 50):
+                        cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
+                        frame = putText_japanese(frame, f"関東地方:東京の江戸前寿司が", (0, 10), 25, (0, 0, 0))
+                        cv2.rectangle(frame, (0, 40), (350, 80), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
+                        frame = putText_japanese(frame, f"有名です", (0, 50), 25, (0, 0, 0))
+                        if target_image_edozusi is not None:
+                            h, w = target_image_edozusi.shape[:2]
+                            x_offset = max(0, 550 - w // 2)
+                            y_offset = max(0, 350 - h // 2)
 
-                        roi = frame[y_offset:h_end, x_offset:w_end]
+                            # 貼り付け可能な領域を制限
+                            h_end = min(frame.shape[0], y_offset + h)
+                            w_end = min(frame.shape[1], x_offset + w)
 
-                        overlay_resized = target_image_edozusi[0:(h_end-y_offset), 0:(w_end-x_offset)]
+                            roi = frame[y_offset:h_end, x_offset:w_end]
 
-                        try:
-                            if overlay_resized.shape[2] == 4:
-                                alpha = overlay_resized[:, :, 3] / 255.0
-                                for c in range(3):
-                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                            else:
-                                roi[:, :, :] = overlay_resized
-                        except Exception as e:
-                            st.error(e)
-                if is_hand_touching_gazou(hand_x, hand_y, 350, 350, 50):
-                    cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
-                    frame = putText_japanese(frame, f"関東地方:山梨と静岡の富士山", (0, 10), 25, (0, 0, 0))
-                    cv2.rectangle(frame, (0, 40), (350, 80), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
-                    frame = putText_japanese(frame, f"が有名です", (0, 50), 25, (0, 0, 0))
-                    if target_image_huzi is not None:
-                        h, w = target_image_huzi.shape[:2]
-                        x_offset = max(0, 550 - w // 2)
-                        y_offset = max(0, 350 - h // 2)
+                            overlay_resized = target_image_edozusi[0:(h_end-y_offset), 0:(w_end-x_offset)]
 
-                        # 貼り付け可能な領域を制限
-                        h_end = min(frame.shape[0], y_offset + h)
-                        w_end = min(frame.shape[1], x_offset + w)
+                            try:
+                                if overlay_resized.shape[2] == 4:
+                                    alpha = overlay_resized[:, :, 3] / 255.0
+                                    for c in range(3):
+                                        roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                                else:
+                                    roi[:, :, :] = overlay_resized
+                            except Exception as e:
+                                st.error(e)
+                    if is_hand_touching_gazou(hand_x, hand_y, 350, 350, 50):
+                        cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
+                        frame = putText_japanese(frame, f"関東地方:山梨と静岡の富士山", (0, 10), 25, (0, 0, 0))
+                        cv2.rectangle(frame, (0, 40), (350, 80), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
+                        frame = putText_japanese(frame, f"が有名です", (0, 50), 25, (0, 0, 0))
+                        if target_image_huzi is not None:
+                            h, w = target_image_huzi.shape[:2]
+                            x_offset = max(0, 550 - w // 2)
+                            y_offset = max(0, 350 - h // 2)
 
-                        roi = frame[y_offset:h_end, x_offset:w_end]
+                            # 貼り付け可能な領域を制限
+                            h_end = min(frame.shape[0], y_offset + h)
+                            w_end = min(frame.shape[1], x_offset + w)
 
-                        overlay_resized = target_image_huzi[0:(h_end-y_offset), 0:(w_end-x_offset)]
+                            roi = frame[y_offset:h_end, x_offset:w_end]
 
-                        try:
-                            if overlay_resized.shape[2] == 4:
-                                alpha = overlay_resized[:, :, 3] / 255.0
-                                for c in range(3):
-                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                            else:
-                                roi[:, :, :] = overlay_resized
-                        except Exception as e:
-                            st.error(e)
-                if is_hand_touching_gazou(hand_x, hand_y, 300, 350, 50):
-                    cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
-                    frame = putText_japanese(frame, f"近畿地方:滋賀の琵琶湖が有名", (0, 10), 25, (0, 0, 0))
-                    cv2.rectangle(frame, (0, 40), (350, 80), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
-                    frame = putText_japanese(frame, f"です", (0, 50), 25, (0, 0, 0))
-                    if target_image_biwako is not None:
-                        h, w = target_image_biwako.shape[:2]
-                        x_offset = max(0, 500 - w // 2)
-                        y_offset = max(0, 350 - h // 2)
+                            overlay_resized = target_image_huzi[0:(h_end-y_offset), 0:(w_end-x_offset)]
 
-                        # 貼り付け可能な領域を制限
-                        h_end = min(frame.shape[0], y_offset + h)
-                        w_end = min(frame.shape[1], x_offset + w)
+                            try:
+                                if overlay_resized.shape[2] == 4:
+                                    alpha = overlay_resized[:, :, 3] / 255.0
+                                    for c in range(3):
+                                        roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                                else:
+                                    roi[:, :, :] = overlay_resized
+                            except Exception as e:
+                                st.error(e)
+                    if is_hand_touching_gazou(hand_x, hand_y, 300, 350, 50):
+                        cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
+                        frame = putText_japanese(frame, f"近畿地方:滋賀の琵琶湖が有名", (0, 10), 25, (0, 0, 0))
+                        cv2.rectangle(frame, (0, 40), (350, 80), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
+                        frame = putText_japanese(frame, f"です", (0, 50), 25, (0, 0, 0))
+                        if target_image_biwako is not None:
+                            h, w = target_image_biwako.shape[:2]
+                            x_offset = max(0, 500 - w // 2)
+                            y_offset = max(0, 350 - h // 2)
 
-                        roi = frame[y_offset:h_end, x_offset:w_end]
+                            # 貼り付け可能な領域を制限
+                            h_end = min(frame.shape[0], y_offset + h)
+                            w_end = min(frame.shape[1], x_offset + w)
 
-                        overlay_resized = target_image_biwako[0:(h_end-y_offset), 0:(w_end-x_offset)]
+                            roi = frame[y_offset:h_end, x_offset:w_end]
 
-                        try:
-                            if overlay_resized.shape[2] == 4:
-                                alpha = overlay_resized[:, :, 3] / 255.0
-                                for c in range(3):
-                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                            else:
-                                roi[:, :, :] = overlay_resized
-                        except Exception as e:
-                            st.error(e)
-                if is_hand_touching_gazou(hand_x, hand_y, 200, 350, 50):
-                    cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
-                    frame = putText_japanese(frame, f"中国地方:広島の原爆ドームが", (0, 10), 25, (0, 0, 0))
-                    cv2.rectangle(frame, (0, 40), (350, 80), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
-                    frame = putText_japanese(frame, f"有名です", (0, 50), 25, (0, 0, 0))
-                    if target_image_genbaku is not None:
-                        h, w = target_image_genbaku.shape[:2]
-                        x_offset = max(0, 550 - w // 2)
-                        y_offset = max(0, 350 - h // 2)
+                            overlay_resized = target_image_biwako[0:(h_end-y_offset), 0:(w_end-x_offset)]
 
-                        # 貼り付け可能な領域を制限
-                        h_end = min(frame.shape[0], y_offset + h)
-                        w_end = min(frame.shape[1], x_offset + w)
+                            try:
+                                if overlay_resized.shape[2] == 4:
+                                    alpha = overlay_resized[:, :, 3] / 255.0
+                                    for c in range(3):
+                                        roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                                else:
+                                    roi[:, :, :] = overlay_resized
+                            except Exception as e:
+                                st.error(e)
+                    if is_hand_touching_gazou(hand_x, hand_y, 200, 350, 50):
+                        cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
+                        frame = putText_japanese(frame, f"中国地方:広島の原爆ドームが", (0, 10), 25, (0, 0, 0))
+                        cv2.rectangle(frame, (0, 40), (350, 80), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
+                        frame = putText_japanese(frame, f"有名です", (0, 50), 25, (0, 0, 0))
+                        if target_image_genbaku is not None:
+                            h, w = target_image_genbaku.shape[:2]
+                            x_offset = max(0, 550 - w // 2)
+                            y_offset = max(0, 350 - h // 2)
 
-                        roi = frame[y_offset:h_end, x_offset:w_end]
+                            # 貼り付け可能な領域を制限
+                            h_end = min(frame.shape[0], y_offset + h)
+                            w_end = min(frame.shape[1], x_offset + w)
 
-                        overlay_resized = target_image_genbaku[0:(h_end-y_offset), 0:(w_end-x_offset)]
+                            roi = frame[y_offset:h_end, x_offset:w_end]
 
-                        try:
-                            if overlay_resized.shape[2] == 4:
-                                alpha = overlay_resized[:, :, 3] / 255.0
-                                for c in range(3):
-                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                            else:
-                                roi[:, :, :] = overlay_resized
-                        except Exception as e:
-                            st.error(e)
-                if is_hand_touching_gazou(hand_x, hand_y, 250, 350, 30):
-                    cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
-                    frame = putText_japanese(frame, f"四国地方:愛知の道後温泉が有", (0, 10), 25, (0, 0, 0))
-                    cv2.rectangle(frame, (0, 40), (350, 80), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
-                    frame = putText_japanese(frame, f"名です", (0, 50), 25, (0, 0, 0))
-                    if target_image_onsen is not None:
-                        h, w = target_image_onsen.shape[:2]
-                        x_offset = max(0, 500 - w // 2)
-                        y_offset = max(0, 350 - h // 2)
+                            overlay_resized = target_image_genbaku[0:(h_end-y_offset), 0:(w_end-x_offset)]
 
-                        # 貼り付け可能な領域を制限
-                        h_end = min(frame.shape[0], y_offset + h)
-                        w_end = min(frame.shape[1], x_offset + w)
+                            try:
+                                if overlay_resized.shape[2] == 4:
+                                    alpha = overlay_resized[:, :, 3] / 255.0
+                                    for c in range(3):
+                                        roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                                else:
+                                    roi[:, :, :] = overlay_resized
+                            except Exception as e:
+                                st.error(e)
+                    if is_hand_touching_gazou(hand_x, hand_y, 250, 350, 30):
+                        cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
+                        frame = putText_japanese(frame, f"四国地方:愛知の道後温泉が有", (0, 10), 25, (0, 0, 0))
+                        cv2.rectangle(frame, (0, 40), (350, 80), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
+                        frame = putText_japanese(frame, f"名です", (0, 50), 25, (0, 0, 0))
+                        if target_image_onsen is not None:
+                            h, w = target_image_onsen.shape[:2]
+                            x_offset = max(0, 500 - w // 2)
+                            y_offset = max(0, 350 - h // 2)
 
-                        roi = frame[y_offset:h_end, x_offset:w_end]
+                            # 貼り付け可能な領域を制限
+                            h_end = min(frame.shape[0], y_offset + h)
+                            w_end = min(frame.shape[1], x_offset + w)
 
-                        overlay_resized = target_image_onsen[0:(h_end-y_offset), 0:(w_end-x_offset)]
+                            roi = frame[y_offset:h_end, x_offset:w_end]
 
-                        try:
-                            if overlay_resized.shape[2] == 4:
-                                alpha = overlay_resized[:, :, 3] / 255.0
-                                for c in range(3):
-                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                            else:
-                                roi[:, :, :] = overlay_resized
-                        except Exception as e:
-                            st.error(e)
-                if is_hand_touching_gazou(hand_x, hand_y, 150, 350, 50):
-                    cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
-                    frame = putText_japanese(frame, f"九州地方:福岡の博多ラーメンが", (0, 10), 25, (0, 0, 0))
-                    cv2.rectangle(frame, (0, 40), (350, 80), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
-                    frame = putText_japanese(frame, f"有名です", (0, 50), 25, (0, 0, 0))
-                    if target_image_ramen is not None:
-                        h, w = target_image_ramen.shape[:2]
-                        x_offset = max(0, 550 - w // 2)
-                        y_offset = max(0, 350 - h // 2)
+                            overlay_resized = target_image_onsen[0:(h_end-y_offset), 0:(w_end-x_offset)]
 
-                        # 貼り付け可能な領域を制限
-                        h_end = min(frame.shape[0], y_offset + h)
-                        w_end = min(frame.shape[1], x_offset + w)
+                            try:
+                                if overlay_resized.shape[2] == 4:
+                                    alpha = overlay_resized[:, :, 3] / 255.0
+                                    for c in range(3):
+                                        roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                                else:
+                                    roi[:, :, :] = overlay_resized
+                            except Exception as e:
+                                st.error(e)
+                    if is_hand_touching_gazou(hand_x, hand_y, 150, 350, 50):
+                        cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
+                        frame = putText_japanese(frame, f"九州地方:福岡の博多ラーメンが", (0, 10), 25, (0, 0, 0))
+                        cv2.rectangle(frame, (0, 40), (350, 80), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
+                        frame = putText_japanese(frame, f"有名です", (0, 50), 25, (0, 0, 0))
+                        if target_image_ramen is not None:
+                            h, w = target_image_ramen.shape[:2]
+                            x_offset = max(0, 550 - w // 2)
+                            y_offset = max(0, 350 - h // 2)
 
-                        roi = frame[y_offset:h_end, x_offset:w_end]
+                            # 貼り付け可能な領域を制限
+                            h_end = min(frame.shape[0], y_offset + h)
+                            w_end = min(frame.shape[1], x_offset + w)
 
-                        overlay_resized = target_image_ramen[0:(h_end-y_offset), 0:(w_end-x_offset)]
+                            roi = frame[y_offset:h_end, x_offset:w_end]
 
-                        try:
-                            if overlay_resized.shape[2] == 4:
-                                alpha = overlay_resized[:, :, 3] / 255.0
-                                for c in range(3):
-                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                            else:
-                                roi[:, :, :] = overlay_resized
-                        except Exception as e:
-                            st.error(e)
-                if is_hand_touching_gazou(hand_x, hand_y, 100, 500, 50):
-                    cv2.rectangle(frame, (0, 0), (700, 80),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
-                    frame = putText_japanese(frame, f"沖縄地方:特産品はゴーヤー", (0, 10), 25, (0, 0, 0))
-                    cv2.rectangle(frame, (0, 40), (350, 80), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
-                    frame = putText_japanese(frame, f"有名です", (0, 50), 25, (0, 0, 0))
-                    if target_image_satou is not None:
-                        h, w = target_image_satou.shape[:2]
-                        x_offset = max(0, 550 - w // 2)
-                        y_offset = max(0, 350 - h // 2)
+                            overlay_resized = target_image_ramen[0:(h_end-y_offset), 0:(w_end-x_offset)]
 
-                        # 貼り付け可能な領域を制限
-                        h_end = min(frame.shape[0], y_offset + h)
-                        w_end = min(frame.shape[1], x_offset + w)
+                            try:
+                                if overlay_resized.shape[2] == 4:
+                                    alpha = overlay_resized[:, :, 3] / 255.0
+                                    for c in range(3):
+                                        roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                                else:
+                                    roi[:, :, :] = overlay_resized
+                            except Exception as e:
+                                st.error(e)
+                    if is_hand_touching_gazou(hand_x, hand_y, 100, 500, 50):
+                        cv2.rectangle(frame, (0, 0), (700, 80),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
+                        frame = putText_japanese(frame, f"沖縄地方:特産品はゴーヤー", (0, 10), 25, (0, 0, 0))
+                        cv2.rectangle(frame, (0, 40), (350, 80), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
+                        frame = putText_japanese(frame, f"有名です", (0, 50), 25, (0, 0, 0))
+                        if target_image_satou is not None:
+                            h, w = target_image_satou.shape[:2]
+                            x_offset = max(0, 550 - w // 2)
+                            y_offset = max(0, 350 - h // 2)
 
-                        roi = frame[y_offset:h_end, x_offset:w_end]
+                            # 貼り付け可能な領域を制限
+                            h_end = min(frame.shape[0], y_offset + h)
+                            w_end = min(frame.shape[1], x_offset + w)
 
-                        overlay_resized = target_image_satou[0:(h_end-y_offset), 0:(w_end-x_offset)]
+                            roi = frame[y_offset:h_end, x_offset:w_end]
 
-                        try:
-                            if overlay_resized.shape[2] == 4:
-                                alpha = overlay_resized[:, :, 3] / 255.0
-                                for c in range(3):
-                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                            else:
-                                roi[:, :, :] = overlay_resized
-                        except Exception as e:
-                            st.error(e)
+                            overlay_resized = target_image_satou[0:(h_end-y_offset), 0:(w_end-x_offset)]
+
+                            try:
+                                if overlay_resized.shape[2] == 4:
+                                    alpha = overlay_resized[:, :, 3] / 255.0
+                                    for c in range(3):
+                                        roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                                else:
+                                    roi[:, :, :] = overlay_resized
+                            except Exception as e:
+                                st.error(e)
 
 
-        if target_image is not None:
-            h, w = target_image.shape[:2]
-            x_offset = (frame.shape[1] - w) // 2
-            y_offset = (frame.shape[0] - h) // 2
-            if x_offset >= 0 and y_offset >= 0 and x_offset + w <= frame.shape[1] and y_offset + h <= frame.shape[0]:
-                if target_image.shape[2] == 4:
-                    alpha_channel = target_image[:, :, 3] / 255.0
-                    overlay_colors = target_image[:, :, :3]
-                    for c in range(3):
-                        frame[y_offset:y_offset+h, x_offset:x_offset+w, c] = \
-                            frame[y_offset:y_offset+h, x_offset:x_offset+w, c] * (1 - alpha_channel) + \
-                            overlay_colors[:, :, c] * alpha_channel
-                else:
-                    frame[y_offset:y_offset+h, x_offset:x_offset+w] = target_image
-        
+            if target_image is not None:
+                h, w = target_image.shape[:2]
+                x_offset = (frame.shape[1] - w) // 2
+                y_offset = (frame.shape[0] - h) // 2
+                if x_offset >= 0 and y_offset >= 0 and x_offset + w <= frame.shape[1] and y_offset + h <= frame.shape[0]:
+                    if target_image.shape[2] == 4:
+                        alpha_channel = target_image[:, :, 3] / 255.0
+                        overlay_colors = target_image[:, :, :3]
+                        for c in range(3):
+                            frame[y_offset:y_offset+h, x_offset:x_offset+w, c] = \
+                                frame[y_offset:y_offset+h, x_offset:x_offset+w, c] * (1 - alpha_channel) + \
+                                overlay_colors[:, :, c] * alpha_channel
+                    else:
+                        frame[y_offset:y_offset+h, x_offset:x_offset+w] = target_image
 
-        
-        return av.VideoFrame.from_ndarray(frame, format="bgr24")
+
+
+            return av.VideoFrame.from_ndarray(frame, format="bgr24")
+        except Exception as e:
+            st.error(e)
+            return av.VideoFrame.from_ndarray(frame, format="bgr24")
 
 ctx = webrtc_streamer(
     key="camera",
@@ -461,5 +469,3 @@ ctx = webrtc_streamer(
 )
 
 st.markdown("<b>使い方<b>", unsafe_allow_html=True)
-
-
