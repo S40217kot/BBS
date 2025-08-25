@@ -131,21 +131,18 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
             return distance < gazou_radius
         
         def putText_japanese(img, text, point, size, color):
-            try:
-                font = ImageFont.truetype('BIZ-UDGothicR.ttc', size)
-            except OSError:
-                font = ImageFont.load_default()
+            font = ImageFont.truetype('BIZ-UDGothicR.ttc', size)
 
-            #imgをndarrayからPILに変換
+        #imgをndarrayからPILに変換
             img_pil = Image.fromarray(img)
 
-            #drawインスタンス生成
+        #drawインスタンス生成
             draw = ImageDraw.Draw(img_pil)
 
-            #テキスト描画
+        #テキスト描画
             draw.text(point, text, fill=color, font=font)
 
-            #PILからndarrayに変換して返す
+        #PILからndarrayに変換して返す
             return np.array(img_pil)
 
     with st.spinner("MediaPipeの初期化中です\nしばらくお待ちください"):
@@ -465,3 +462,4 @@ ctx = webrtc_streamer(
 )
 
 st.markdown("<b>使い方<b>", unsafe_allow_html=True)
+
