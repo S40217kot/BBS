@@ -8,11 +8,11 @@ if st.sidebar.button("AR そろばん"):
         ti.sleep(1)
         st.switch_page("pages/soroban.py")
         exit()
-if st.sidebar.button("AR テルミン"):
+if st.sidebar.button("AR 地図"):
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
         import time as ti
         ti.sleep(1)
-        st.switch_page("pages/terumin.py")
+        st.switch_page("pages/tizu.py")
         exit()
 if st.sidebar.button("AR パレット"):
     import time as ti
@@ -175,3 +175,4 @@ if st.button("ホームへ"):
 st.write("使い方")
 
 st.text("...")
+
