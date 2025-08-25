@@ -48,52 +48,82 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
         target_image_path = os.path.join(current_dir, '..', 'Images', 'tizu.png')
         target_image = cv2.imread(target_image_path, cv2.IMREAD_UNCHANGED)
         target_size = 400  # 画像の直径
-        target_image = cv2.resize(target_image, (target_size, target_size))
+        try:
+            target_image = cv2.resize(target_image, (target_size, target_size))
+        except Exception as e:
+            st.error(e)
 
         target_image_path_meron = os.path.join(current_dir, '..', 'Images', 'meron.png')
         target_image_meron = cv2.imread(target_image_path_meron, cv2.IMREAD_UNCHANGED)
         target_size_meron = 100  # 画像の直径
-        target_image_meron = cv2.resize(target_image_meron, (target_size_meron, target_size_meron))
+        try:
+            target_image_meron = cv2.resize(target_image_meron, (target_size_meron, target_size_meron))
+        except Exception as e:
+            st.error(e)
 
         target_image_path_maturi = os.path.join(current_dir, '..', 'Images', 'maturi.png')
         target_image_maturi = cv2.imread(target_image_path_maturi, cv2.IMREAD_UNCHANGED)
         target_size_maturi = 200  # 画像の直径
-        target_image_maturi = cv2.resize(target_image_maturi, (target_size_maturi, target_size_maturi))
+        try:
+            target_image_maturi = cv2.resize(target_image_maturi, (target_size_maturi, target_size_maturi))
+        except Exception as e:
+            st.error(e)
 
         target_image_path_edozusi = os.path.join(current_dir, '..', 'Images', 'edozusi.png')
         target_image_edozusi = cv2.imread(target_image_path_edozusi, cv2.IMREAD_UNCHANGED)
         target_size_edozusi = 200  # 画像の直径
-        target_image_edozusi = cv2.resize(target_image_edozusi, (target_size_edozusi, target_size_edozusi))
+        try:
+            target_image_edozusi = cv2.resize(target_image_edozusi, (target_size_edozusi, target_size_edozusi))
+        except Exception as e:
+            st.error(e)
 
         target_image_path_huzi = os.path.join(current_dir, '..', 'Images', 'huzi.png')
         target_image_huzi = cv2.imread(target_image_path_huzi, cv2.IMREAD_UNCHANGED)
         target_size_huzi = 200  # 画像の直径
-        target_image_huzi = cv2.resize(target_image_huzi, (target_size_huzi, target_size_huzi))
+        try:
+            target_image_huzi = cv2.resize(target_image_huzi, (target_size_huzi, target_size_huzi))
+        except Exception as e:
+            st.error(e)
 
         target_image_path_biwako = os.path.join(current_dir, '..', 'Images', 'biwako.png')
         target_image_biwako = cv2.imread(target_image_path_biwako, cv2.IMREAD_UNCHANGED)
         target_size_biwako = 200  # 画像の直径
-        target_image_biwako = cv2.resize(target_image_biwako, (target_size_biwako, target_size_biwako))
+        try:
+            target_image_biwako = cv2.resize(target_image_biwako, (target_size_biwako, target_size_biwako))
+        except Exception as e:
+            st.error(e)
 
         target_image_path_genbaku = os.path.join(current_dir, '..', 'Images', 'genbaku.png')
         target_image_genbaku = cv2.imread(target_image_path_biwako, cv2.IMREAD_UNCHANGED)
         target_size_genbaku = 200  # 画像の直径
-        target_image_genbaku = cv2.resize(target_image_genbaku, (target_size_genbaku, target_size_genbaku))
+        try:
+            target_image_genbaku = cv2.resize(target_image_genbaku, (target_size_genbaku, target_size_genbaku))
+        except Exception as e:
+            st.error(e)
 
         target_image_path_onsen = os.path.join(current_dir, '..', 'Images', 'onse.png')
         target_image_onsen = cv2.imread(target_image_path_onsen, cv2.IMREAD_UNCHANGED)
         target_size_onsen = 200  # 画像の直径
-        target_image_onsen = cv2.resize(target_image_onsen, (target_size_onsen, target_size_onsen))
+        try:
+            target_image_onsen = cv2.resize(target_image_onsen, (target_size_onsen, target_size_onsen))
+        except Exception as e:
+            st.error(e)
 
         target_image_path_ramen = os.path.join(current_dir, '..', 'Images', 'ra-me.png')
         target_image_ramen = cv2.imread(target_image_path_ramen, cv2.IMREAD_UNCHANGED)
         target_size_ramen = 200  # 画像の直径
-        target_image_ramen = cv2.resize(target_image_ramen, (target_size_ramen, target_size_ramen))
+        try:
+            target_image_ramen = cv2.resize(target_image_ramen, (target_size_ramen, target_size_ramen))
+        except Exception as e:
+            st.error(e)
 
         target_image_path_satou = os.path.join(current_dir, '..', 'Images', 'satou.png')
         target_image_satou = cv2.imread(target_image_path_satou, cv2.IMREAD_UNCHANGED)
         target_size_satou = 200  # 画像の直径
-        target_image_satou = cv2.resize(target_image_satou, (target_size_satou, target_size_satou))
+        try:
+            target_image_satou = cv2.resize(target_image_satou, (target_size_satou, target_size_satou))
+        except Exception as e:
+            st.error(e)
     
     with st.spinner("定数の定義中です\nしばらくお待ちください"):
         def is_hand_touching_gazou(hand_x, hand_y, gazou_x, gazou_y, gazou_radius):
@@ -101,7 +131,10 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
             return distance < gazou_radius
         
         def putText_japanese(img, text, point, size, color):
-            font = ImageFont.truetype('BIZ-UDGothicR.ttc', size)
+            try:
+                font = ImageFont.truetype('BIZ-UDGothicR.ttc', size)
+            except OSError:
+                font = ImageFont.load_default()
 
             #imgをndarrayからPILに変換
             img_pil = Image.fromarray(img)
@@ -178,12 +211,15 @@ class HandProcessor(VideoProcessorBase):
 
                         overlay_resized = target_image_meron[0:(h_end-y_offset), 0:(w_end-x_offset)]
 
-                        if overlay_resized.shape[2] == 4:
-                            alpha = overlay_resized[:, :, 3] / 255.0
-                            for c in range(3):
-                                roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                        else:
-                            roi[:, :, :] = overlay_resized
+                        try:
+                            if overlay_resized.shape[2] == 4:
+                                alpha = overlay_resized[:, :, 3] / 255.0
+                                for c in range(3):
+                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                            else:
+                                roi[:, :, :] = overlay_resized
+                        except Exception as e:
+                            st.error(e)
                 if is_hand_touching_gazou(hand_x, hand_y, 400, 200, 50):
                     cv2.rectangle(frame, (0, 0), (350, 40), (255, 255, 255), cv2.FILLED, cv2.LINE_AA)
                     frame = putText_japanese(frame, f"東北地方:青森県のねぶた祭が", (0, 10), 25, (0, 0, 0))
@@ -202,12 +238,15 @@ class HandProcessor(VideoProcessorBase):
 
                         overlay_resized = target_image_maturi[0:(h_end-y_offset), 0:(w_end-x_offset)]
 
-                        if overlay_resized.shape[2] == 4:
-                            alpha = overlay_resized[:, :, 3] / 255.0
-                            for c in range(3):
-                                roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                        else:
-                            roi[:, :, :] = overlay_resized
+                        try:
+                            if overlay_resized.shape[2] == 4:
+                                alpha = overlay_resized[:, :, 3] / 255.0
+                                for c in range(3):
+                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                            else:
+                                roi[:, :, :] = overlay_resized
+                        except Exception as e:
+                            st.error(e)
                 if is_hand_touching_gazou(hand_x, hand_y, 400, 300, 50):
                     cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
                     frame = putText_japanese(frame, f"関東地方:東京の江戸前寿司が", (0, 10), 25, (0, 0, 0))
@@ -226,12 +265,15 @@ class HandProcessor(VideoProcessorBase):
 
                         overlay_resized = target_image_edozusi[0:(h_end-y_offset), 0:(w_end-x_offset)]
 
-                        if overlay_resized.shape[2] == 4:
-                            alpha = overlay_resized[:, :, 3] / 255.0
-                            for c in range(3):
-                                roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                        else:
-                            roi[:, :, :] = overlay_resized
+                        try:
+                            if overlay_resized.shape[2] == 4:
+                                alpha = overlay_resized[:, :, 3] / 255.0
+                                for c in range(3):
+                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                            else:
+                                roi[:, :, :] = overlay_resized
+                        except Exception as e:
+                            st.error(e)
                 if is_hand_touching_gazou(hand_x, hand_y, 350, 350, 50):
                     cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
                     frame = putText_japanese(frame, f"関東地方:山梨と静岡の富士山", (0, 10), 25, (0, 0, 0))
@@ -250,12 +292,15 @@ class HandProcessor(VideoProcessorBase):
 
                         overlay_resized = target_image_huzi[0:(h_end-y_offset), 0:(w_end-x_offset)]
 
-                        if overlay_resized.shape[2] == 4:
-                            alpha = overlay_resized[:, :, 3] / 255.0
-                            for c in range(3):
-                                roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                        else:
-                            roi[:, :, :] = overlay_resized
+                        try:
+                            if overlay_resized.shape[2] == 4:
+                                alpha = overlay_resized[:, :, 3] / 255.0
+                                for c in range(3):
+                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                            else:
+                                roi[:, :, :] = overlay_resized
+                        except Exception as e:
+                            st.error(e)
                 if is_hand_touching_gazou(hand_x, hand_y, 300, 350, 50):
                     cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
                     frame = putText_japanese(frame, f"近畿地方:滋賀の琵琶湖が有名", (0, 10), 25, (0, 0, 0))
@@ -274,12 +319,15 @@ class HandProcessor(VideoProcessorBase):
 
                         overlay_resized = target_image_biwako[0:(h_end-y_offset), 0:(w_end-x_offset)]
 
-                        if overlay_resized.shape[2] == 4:
-                            alpha = overlay_resized[:, :, 3] / 255.0
-                            for c in range(3):
-                                roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                        else:
-                            roi[:, :, :] = overlay_resized
+                        try:
+                            if overlay_resized.shape[2] == 4:
+                                alpha = overlay_resized[:, :, 3] / 255.0
+                                for c in range(3):
+                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                            else:
+                                roi[:, :, :] = overlay_resized
+                        except Exception as e:
+                            st.error(e)
                 if is_hand_touching_gazou(hand_x, hand_y, 200, 350, 50):
                     cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
                     frame = putText_japanese(frame, f"中国地方:広島の原爆ドームが", (0, 10), 25, (0, 0, 0))
@@ -298,12 +346,15 @@ class HandProcessor(VideoProcessorBase):
 
                         overlay_resized = target_image_genbaku[0:(h_end-y_offset), 0:(w_end-x_offset)]
 
-                        if overlay_resized.shape[2] == 4:
-                            alpha = overlay_resized[:, :, 3] / 255.0
-                            for c in range(3):
-                                roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                        else:
-                            roi[:, :, :] = overlay_resized
+                        try:
+                            if overlay_resized.shape[2] == 4:
+                                alpha = overlay_resized[:, :, 3] / 255.0
+                                for c in range(3):
+                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                            else:
+                                roi[:, :, :] = overlay_resized
+                        except Exception as e:
+                            st.error(e)
                 if is_hand_touching_gazou(hand_x, hand_y, 250, 350, 30):
                     cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
                     frame = putText_japanese(frame, f"四国地方:愛知の道後温泉が有", (0, 10), 25, (0, 0, 0))
@@ -322,12 +373,15 @@ class HandProcessor(VideoProcessorBase):
 
                         overlay_resized = target_image_onsen[0:(h_end-y_offset), 0:(w_end-x_offset)]
 
-                        if overlay_resized.shape[2] == 4:
-                            alpha = overlay_resized[:, :, 3] / 255.0
-                            for c in range(3):
-                                roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                        else:
-                            roi[:, :, :] = overlay_resized
+                        try:
+                            if overlay_resized.shape[2] == 4:
+                                alpha = overlay_resized[:, :, 3] / 255.0
+                                for c in range(3):
+                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                            else:
+                                roi[:, :, :] = overlay_resized
+                        except Exception as e:
+                            st.error(e)
                 if is_hand_touching_gazou(hand_x, hand_y, 150, 350, 50):
                     cv2.rectangle(frame, (0, 0), (350, 40),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
                     frame = putText_japanese(frame, f"九州地方:福岡の博多ラーメンが", (0, 10), 25, (0, 0, 0))
@@ -346,12 +400,15 @@ class HandProcessor(VideoProcessorBase):
 
                         overlay_resized = target_image_ramen[0:(h_end-y_offset), 0:(w_end-x_offset)]
 
-                        if overlay_resized.shape[2] == 4:
-                            alpha = overlay_resized[:, :, 3] / 255.0
-                            for c in range(3):
-                                roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                        else:
-                            roi[:, :, :] = overlay_resized
+                        try:
+                            if overlay_resized.shape[2] == 4:
+                                alpha = overlay_resized[:, :, 3] / 255.0
+                                for c in range(3):
+                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                            else:
+                                roi[:, :, :] = overlay_resized
+                        except Exception as e:
+                            st.error(e)
                 if is_hand_touching_gazou(hand_x, hand_y, 100, 500, 50):
                     cv2.rectangle(frame, (0, 0), (700, 80),(255, 255, 255), cv2.FILLED, cv2.LINE_AA)
                     frame = putText_japanese(frame, f"沖縄地方:特産品はゴーヤー", (0, 10), 25, (0, 0, 0))
@@ -370,12 +427,15 @@ class HandProcessor(VideoProcessorBase):
 
                         overlay_resized = target_image_satou[0:(h_end-y_offset), 0:(w_end-x_offset)]
 
-                        if overlay_resized.shape[2] == 4:
-                            alpha = overlay_resized[:, :, 3] / 255.0
-                            for c in range(3):
-                                roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
-                        else:
-                            roi[:, :, :] = overlay_resized
+                        try:
+                            if overlay_resized.shape[2] == 4:
+                                alpha = overlay_resized[:, :, 3] / 255.0
+                                for c in range(3):
+                                    roi[:, :, c] = roi[:, :, c] * (1 - alpha) + overlay_resized[:, :, c] * alpha
+                            else:
+                                roi[:, :, :] = overlay_resized
+                        except Exception as e:
+                            st.error(e)
 
 
         if target_image is not None:
