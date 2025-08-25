@@ -2,6 +2,10 @@ import streamlit as st
 
 st.title("Border Break Studies")
 
+st.title("現在このページはご利用いただけません\n申し訳ありません。")
+with st.spinner('リダイレクト中です\nしばらくお待ちください'):
+    st.switch_page("main.py")
+
 if st.sidebar.button("AR そろばん"):
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
         st.switch_page("pages/soroban.py")
@@ -202,6 +206,7 @@ finally:
     # リソースの解放
 
     cap.release()
+
 
 
 
