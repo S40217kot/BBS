@@ -5,6 +5,8 @@ st.title("Border Break Studies")
 st.title("ARテルミン")
 
 st.title("現在このページはご利用いただけません\n申し訳ありません。")
+import time as ti
+ti.sleep(2)
 with st.spinner('リダイレクト中です\nしばらくお待ちください'):
     st.switch_page("main.py")
 
@@ -167,4 +169,5 @@ if st.button("ホームへ"):
         exit()
 st.write("使い方")
 st.text("...")
+
 
