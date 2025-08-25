@@ -4,8 +4,8 @@ st.set_page_config(page_title="Home")
 
 if st.sidebar.button("AR そろばん"):
     st.switch_page("pages/soroban.py")
-if st.sidebar.button("AR テルミン"):
-    st.switch_page("pages/terumin.py")
+if st.sidebar.button("AR 地図"):
+    st.switch_page("pages/tizu.py")
 if st.sidebar.button("AR パレット"):
     st.switch_page("pages/paretto.py")
 if st.sidebar.button("AR 人体模型"):
@@ -35,8 +35,8 @@ try:
     st.markdown("<b>コンテンツ一覧<b>", unsafe_allow_html=True)
     if st.button("AR そろばん"):
         st.switch_page("pages/soroban.py")
-    if st.button("AR テルミン"):
-        st.switch_page("pages/terumin.py")
+    if st.button("AR 地図"):
+        st.switch_page("pages/tizu.py")
     if st.button("AR パレット"):
         st.switch_page("pages/paretto.py")
     if st.button("AR 人体模型"):
@@ -47,5 +47,6 @@ except Exception as e:
     st.error(f"申し上げございません\nシステム内部で問題が発生しました：{e}")
 except RuntimeError as e:
     st.error(f"申し上げございません\nシステム内部で問題が発生しました：{e}")
+
 
 
