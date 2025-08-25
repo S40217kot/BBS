@@ -129,21 +129,6 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
         def is_hand_touching_gazou(hand_x, hand_y, gazou_x, gazou_y, gazou_radius):
             distance = math.sqrt((hand_x - gazou_x) ** 2 + (hand_y - gazou_y) ** 2)
             return distance < gazou_radius
-        
-        def putText_japanese(img, text, point, size, color):
-            font = ImageFont.truetype('BIZ-UDGothicR.ttc', size)
-
-        #imgをndarrayからPILに変換
-            img_pil = Image.fromarray(img)
-
-        #drawインスタンス生成
-            draw = ImageDraw.Draw(img_pil)
-
-        #テキスト描画
-            draw.text(point, text, fill=color, font=font)
-
-        #PILからndarrayに変換して返す
-            return np.array(img_pil)
 
     with st.spinner("MediaPipeの初期化中です\nしばらくお待ちください"):
         # MediaPipe Handsの初期設定
@@ -155,6 +140,20 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
             min_tracking_confidence=0.5
         )
         mp_drawing = mp.solutions.drawing_utils
+    def putText_japanese(img, text, point, size, color):
+        font = ImageFont.truetype('BIZ-UDGothicR.ttc', size)
+
+        #imgをndarrayからPILに変換
+        img_pil = Image.fromarray(img)
+
+        #drawインスタンス生成
+        draw = ImageDraw.Draw(img_pil)
+
+        #テキスト描画
+        draw.text(point, text, fill=color, font=font)
+
+        #PILからndarrayに変換して返す
+        return np.array(img_pil)
 
 RTC_CONFIG = RTCConfiguration(
     {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
@@ -462,4 +461,5 @@ ctx = webrtc_streamer(
 )
 
 st.markdown("<b>使い方<b>", unsafe_allow_html=True)
+
 
