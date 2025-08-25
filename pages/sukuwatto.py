@@ -3,6 +3,8 @@ import streamlit as st
 st.title("Border Break Studies")
 
 st.title("現在このページはご利用いただけません\n申し訳ありません。")
+import time as ti
+ti.sleep(2)
 with st.spinner('リダイレクト中です\nしばらくお待ちください'):
     st.switch_page("main.py")
 
@@ -206,6 +208,7 @@ finally:
     # リソースの解放
 
     cap.release()
+
 
 
 
