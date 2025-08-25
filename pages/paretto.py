@@ -6,7 +6,7 @@ st.title("Border Break Studies")
 if st.sidebar.button("AR そろばん"):
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
         st.switch_page("pages/soroban.py")
-if st.sidebar.button("AR テルミン"):
+if st.sidebar.button("AR 地図"):
     with st.spinner('リダイレクト中です\nしばらくお待ちください'):
         st.switch_page("pages/terumin.py")
 if st.sidebar.button("AR パレット"):
@@ -198,4 +198,5 @@ if st.button("ホームへ"):
 
 st.write("使い方")
 st.text("...")
+
 
