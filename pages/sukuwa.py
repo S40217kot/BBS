@@ -6,6 +6,8 @@ write = True
 st.title("Border Break Studies")
 
 st.title("現在このページはご利用いただけません\n申し訳ありません。")
+import time as ti
+ti.sleep(2)
 with st.spinner('リダイレクト中です\nしばらくお待ちください'):
     st.switch_page("main.py")
 
@@ -56,5 +58,6 @@ if write == True:
             ti.sleep(1)
             st.session_state["mokuhyo"] = f"{mokuhyo}"
             st.switch_page("pages/sukuwatto.py")
+
 
 
