@@ -132,7 +132,7 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
         
         def putText_japanese(img, text, point, size, color):
             try:
-                font = ImageFont.truetype('BIZ-UDGothicR.ttc', size)
+                font = ImageFont.truetype('./pages/BIZ-UDGothicR.ttc', size)
             except OSError:
                 font = ImageFont.load_default()
 
@@ -469,3 +469,4 @@ ctx = webrtc_streamer(
 )
 
 st.markdown("<b>使い方<b>", unsafe_allow_html=True)
+
