@@ -83,7 +83,7 @@ with st.spinner('読み込み中です\nしばらくお待ちください'):
         return distance < zouki_radius
     
     def putText_japanese(img, text, point, size, color):
-        font = ImageFont.truetype('BIZ-UDGothicR.ttc', size)
+        font = ImageFont.truetype('./pages/BIZ-UDGothicR.ttc', size)
 
         #imgをndarrayからPILに変換
         img_pil = Image.fromarray(img)
@@ -346,4 +346,5 @@ if st.button("ホームへ"):
          st.switch_page("main.py")
 st.write("使い方")
 st.text("...")
+
 
